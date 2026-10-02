@@ -47,6 +47,8 @@ def metric(op, field, label, fmt=None, dtype="number"):
         "sourceField": "___records___" if op == "count" else field,
         "params": {"emptyAsNull": True},
     }
+    if op == "count":
+        col["params"]["emptyAsNull"] = False      # sin datos muestra 0, no "N/A"
     if op == "last_value":
         col["params"] = {"sortField": "@timestamp", "showArrayValues": False}
         col["filter"] = {"query": f'"{field}": *', "language": "kuery"}

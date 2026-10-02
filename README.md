@@ -27,8 +27,10 @@ Los escáneres usan la red del equipo (`network_mode: host`) porque necesitan ve
 
 ## Requisitos
 
-- Linux con Docker y Docker Compose v2.
-- Unos 3 GB de RAM libres.
+- Linux con Docker y Docker Compose v2. No funciona en Docker Desktop (Mac o Windows): ahí los contenedores no ven la red local real.
+- Unos 3 GB de RAM libres y 4 GB de disco para las imágenes.
+- Elasticsearch necesita `vm.max_map_count` de al menos 262144. Se revisa con `sysctl vm.max_map_count`; si es menor: `sudo sysctl -w vm.max_map_count=262144`.
+- Que los puertos 9200 y 5601 estén libres, o cambiarlos en `.env`.
 - El sniffer solo ve el tráfico que pasa por este equipo, más broadcast y multicast del resto. Para ver todo el tráfico de la red el equipo tiene que estar en un puerto espejo del switch o ser el router.
 
 ## Puesta en marcha
@@ -43,7 +45,9 @@ Revisa `LAN_TZ` (zona horaria) y, si tienes más de una interfaz de red, `LAN_IF
 docker compose up -d --build
 ```
 
-Kibana tarda uno o dos minutos en estar disponible. Luego abre <http://localhost:5601> → **Dashboards** → **LAN Monitor — Dispositivos y tráfico**.
+La primera vez descarga las imágenes de Elastic y construye la del escáner, lo que puede tardar varios minutos. Después, el arranque toma cerca de un minuto y medio. Los primeros datos de tráfico aparecen al minuto, los dispositivos a los 2–3 minutos y los puertos poco después.
+
+Abre <http://localhost:5601> → **Dashboards** → **LAN Monitor — Dispositivos y tráfico**.
 
 ## Qué muestra el dashboard
 
