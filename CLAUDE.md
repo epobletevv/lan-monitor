@@ -24,6 +24,8 @@ Los scripts escriben un JSON por archivo, no NDJSON. Toda la interpretación viv
 - En la carpeta `elk/logstash/pipeline/` Logstash carga **todos** los archivos como configuración: no dejar ahí respaldos ni JSON.
 - En Lens, las columnas de texto que pueden faltar (fabricante, hostname, servicio) van como métrica `last_value`, no como `terms`; con `terms` desaparecen las filas sin valor.
 - Kibana no recarga un dashboard importado hasta refrescar la página completa.
+- Kibana guarda en caché la lista de campos del data view: un campo nuevo puede dar "can not be used for filtering" o un aviso rojo en el panel hasta que exista en algún documento y se recargue la página.
+- La tabla de riesgo y recomendaciones por puerto vive en `lan.conf` (`@risk`) y debe coincidir con `PORT_RISK` de `scanner/LanPorts.py`.
 - Los JSON de `tests/samples/` están anonimizados. No agregar muestras con MAC, IP públicas o dominios reales, ni subir `lan_*.json` de escaneos reales.
 
 ## Entorno de Enrique

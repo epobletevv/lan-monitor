@@ -49,7 +49,14 @@ La primera vez descarga las imágenes de Elastic y construye la del escáner, lo
 
 Abre <http://localhost:5601> → **Dashboards** → **LAN Monitor — Dispositivos y tráfico**.
 
-## Qué muestra el dashboard
+## Dashboards
+
+Hay dos, enlazados entre sí:
+
+- **LAN Monitor — Dispositivos y tráfico**: qué hay en la red y cuánto consume.
+- **LAN Monitor — Diagnóstico**: qué habría que revisar, con severidad y acción recomendada.
+
+### Dispositivos y tráfico
 
 - Cuántos dispositivos distintos hay y cuántos tienen puertos abiertos.
 - Ancho de banda en el tiempo (bajada y subida) del equipo que escanea.
@@ -60,6 +67,19 @@ Abre <http://localhost:5601> → **Dashboards** → **LAN Monitor — Dispositiv
 - Puertos abiertos por dispositivo con su nivel de riesgo.
 - Alertas por puertos asociados a minería, C2 o acceso remoto sin cifrar.
 
+### Diagnóstico
+
+Pensado para leerse de arriba hacia abajo unos 30 minutos después de arrancar, cuando ya hubo un escaneo de puertos:
+
+- **Semáforos**: puertos de riesgo crítico y alto, alertas hacia internet, dispositivos sin identificar y servicios que expone el router. Verde es sin hallazgos.
+- **Hallazgos**: cada puerto que requiere atención, con el equipo, su fabricante, qué es y **qué hacer**. Ordenados por severidad (100 crítico, 40 alto, 10 medio).
+- **Router**: los servicios que el gateway ofrece a la red.
+- **Riesgo acumulado por equipo**: suma de las severidades de sus puertos abiertos.
+- **Dispositivos sin identificar**: los que no tienen fabricante conocido.
+- **Conexiones y alertas**: tráfico hacia internet por puertos asociados a minería, C2 o acceso remoto.
+
+Es un diagnóstico por reglas (qué puerto está abierto y a dónde va el tráfico), no un análisis de vulnerabilidades: no prueba contraseñas ni versiones con fallas conocidas.
+
 ## Datos en Elasticsearch
 
 Índices mensuales `lanmon-<tipo>-AAAA.MM`. El campo `event.dataset` dice qué representa cada documento:
@@ -68,7 +88,7 @@ Abre <http://localhost:5601> → **Dashboards** → **LAN Monitor — Dispositiv
 |---|---|---|---|
 | `lanmon-devices-*` | `devices.device` | dispositivo y escaneo | `device.ip`, `device.mac`, `device.vendor`, `device.hostname`, `device.open_ports` |
 | | `devices.summary` | escaneo | `scan.device_count` |
-| `lanmon-ports-*` | `ports.port` | puerto abierto y escaneo | `device.ip`, `port.number`, `port.service`, `port.risk` |
+| `lanmon-ports-*` | `ports.port` | puerto abierto y escaneo | `device.ip`, `port.number`, `port.service`, `port.risk`, `port.risk_score`, `port.recommendation` |
 | | `ports.device` | dispositivo y escaneo | `device.risk`, `device.risk_score` |
 | `lanmon-traffic-*` | `traffic.host` | host y minuto | `source.ip`, `traffic.delta.bytes_out`, `traffic.delta.bytes_in` |
 | | `traffic.connection` | conexión del top 20 y minuto | `source.ip`, `destination.ip`, `destination.port`, `destination.scope`, `destination.as.organization.name`, `destination.geo.country_name` |

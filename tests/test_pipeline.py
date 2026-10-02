@@ -98,6 +98,8 @@ def main() -> int:
     check("ports.device", count["ports.device"], len(ports["devices"]))
     check("ports.port", count["ports.port"], sum(len(d["ports"]) for d in ports["devices"]))
     check("error.json (archivo roto)", count["error.json"], 1)
+    p80 = next(r for r in rows if r["event"]["dataset"] == "ports.port" and r["port"]["number"] == 80)["port"]
+    check("puerto 80: riesgo, puntaje y recomendación", (p80["risk"], p80["risk_score"], bool(p80["recommendation"])), ("medium", 10, True))
 
     alerts = [r for r in rows if r["idx"] == "alerts"]
     reales = [a for a in last["alerts"] if a["dst"] != "255.255.255.255"]
