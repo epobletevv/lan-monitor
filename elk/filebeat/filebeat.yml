@@ -1,0 +1,68 @@
+# Los scripts escriben un JSON con sangría por archivo (no NDJSON).
+# Filebeat solo junta el archivo completo en un evento; Logstash lo interpreta.
+filebeat.inputs:
+
+  - type: filestream
+    id: lanmon-devices
+    enabled: true
+    # Cada archivo se abre una sola vez; se limita cuántos a la vez para no saturar Logstash.
+    harvester_limit: 100
+    close.on_state_change.inactive: 30s
+    paths:
+      - /var/log/lan-monitor/lan_scan_*.json
+    parsers:
+      - multiline:
+          type: pattern
+          pattern: '^\{'
+          negate: true
+          match: after
+          max_lines: 50000
+          timeout: 5s
+    fields:
+      module: lan-devices
+    fields_under_root: true
+
+  - type: filestream
+    id: lanmon-traffic
+    enabled: true
+    # Cada archivo se abre una sola vez; se limita cuántos a la vez para no saturar Logstash.
+    harvester_limit: 100
+    close.on_state_change.inactive: 30s
+    paths:
+      - /var/log/lan-monitor/lan_traffic_*.json
+    parsers:
+      - multiline:
+          type: pattern
+          pattern: '^\{'
+          negate: true
+          match: after
+          max_lines: 50000
+          timeout: 5s
+    fields:
+      module: lan-traffic
+    fields_under_root: true
+
+  - type: filestream
+    id: lanmon-ports
+    enabled: true
+    # Cada archivo se abre una sola vez; se limita cuántos a la vez para no saturar Logstash.
+    harvester_limit: 100
+    close.on_state_change.inactive: 30s
+    paths:
+      - /var/log/lan-monitor/lan_ports_*.json
+    parsers:
+      - multiline:
+          type: pattern
+          pattern: '^\{'
+          negate: true
+          match: after
+          max_lines: 50000
+          timeout: 5s
+    fields:
+      module: lan-ports
+    fields_under_root: true
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+logging.level: info

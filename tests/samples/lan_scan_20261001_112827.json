@@ -1,0 +1,145 @@
+{
+  "timestamp": "2026-10-01 11:28:27.283898",
+  "gateway": "192.168.1.1",
+  "network": "192.168.1.0/24",
+  "devices": [
+    {
+      "ip": "192.168.1.1",
+      "mac": "14:65:6A:13:0D:1C",
+      "vendor": "Desconocido",
+      "hostname": "router.lan",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.3",
+      "mac": "04:18:92:48:85:66",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [
+        80
+      ],
+      "services": {
+        "80": "http"
+      }
+    },
+    {
+      "ip": "192.168.1.4",
+      "mac": "20:51:F5:89:AE:6C",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.11",
+      "mac": "C0:84:7D:6A:63:4B",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.13",
+      "mac": "A0:D0:DC:1B:5D:28",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [
+        8888
+      ],
+      "services": {
+        "8888": "tcpwrapped"
+      }
+    },
+    {
+      "ip": "192.168.1.19",
+      "mac": "3C:A9:AB:54:AA:66",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.20",
+      "mac": "E0:92:5C:56:17:DC",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [
+        49152
+      ],
+      "services": {
+        "49152": "tcpwrapped"
+      }
+    },
+    {
+      "ip": "192.168.1.21",
+      "mac": "10:2C:6B:A1:28:60",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.24",
+      "mac": "E8:AB:FA:AC:07:81",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.25",
+      "mac": "FC:3C:D7:0F:B3:98",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.27",
+      "mac": "A8:80:55:03:B5:C6",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.44",
+      "mac": "32:5D:01:77:8D:A8",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.71",
+      "mac": "E8:AA:CB:94:E3:49",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    },
+    {
+      "ip": "192.168.1.76",
+      "mac": "A0:D7:F3:37:3C:ED",
+      "vendor": "Desconocido",
+      "hostname": "\u2014",
+      "os": "\u2014",
+      "ports": [],
+      "services": {}
+    }
+  ]
+}

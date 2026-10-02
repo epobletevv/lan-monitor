@@ -1,0 +1,330 @@
+{
+  "timestamp": "2026-10-01 11:31:27.474851",
+  "module": "lan-traffic",
+  "duration_secs": 1080,
+  "packets": 106259,
+  "bytes_in": 33955607,
+  "bytes_out": 22726933,
+  "hosts": {
+    "192.168.1.3": {
+      "out": 38627,
+      "in": 0,
+      "packets": 76
+    },
+    "192.168.1.9": {
+      "out": 22511261,
+      "in": 33955607,
+      "packets": 64213
+    },
+    "192.168.1.27": {
+      "out": 53136,
+      "in": 0,
+      "packets": 216
+    },
+    "192.168.1.25": {
+      "out": 52890,
+      "in": 0,
+      "packets": 215
+    },
+    "192.168.1.20": {
+      "out": 15639,
+      "in": 0,
+      "packets": 122
+    },
+    "192.168.1.1": {
+      "out": 12564,
+      "in": 0,
+      "packets": 72
+    },
+    "192.168.1.4": {
+      "out": 11775,
+      "in": 0,
+      "packets": 52
+    },
+    "192.168.1.11": {
+      "out": 9429,
+      "in": 0,
+      "packets": 40
+    },
+    "192.168.1.21": {
+      "out": 9607,
+      "in": 0,
+      "packets": 37
+    },
+    "192.168.1.13": {
+      "out": 12005,
+      "in": 0,
+      "packets": 67
+    }
+  },
+  "top_connections": [
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.94",
+      "port": 443,
+      "packets": 6354
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.62",
+      "port": 443,
+      "packets": 5820
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "8.8.8.8",
+      "port": 443,
+      "packets": 1418
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.21",
+      "port": 443,
+      "packets": 997
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.119",
+      "port": 443,
+      "packets": 875
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.93",
+      "port": 443,
+      "packets": 856
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.170",
+      "port": 443,
+      "packets": 755
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.25",
+      "port": 443,
+      "packets": 650
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.109",
+      "port": 443,
+      "packets": 646
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.254",
+      "port": 443,
+      "packets": 599
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.200",
+      "port": 443,
+      "packets": 464
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.86",
+      "port": 443,
+      "packets": 421
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.5",
+      "port": 443,
+      "packets": 412
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.4",
+      "port": 443,
+      "packets": 400
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.247",
+      "port": 443,
+      "packets": 389
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.189",
+      "port": 443,
+      "packets": 388
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.10",
+      "port": 443,
+      "packets": 347
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.248",
+      "port": 443,
+      "packets": 329
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.197",
+      "port": 443,
+      "packets": 313
+    },
+    {
+      "src": "192.168.1.9",
+      "dst": "203.0.113.234",
+      "port": 443,
+      "packets": 308
+    }
+  ],
+  "top_dns": [
+    {
+      "domain": "sitio-cbbc8.example",
+      "count": 94
+    },
+    {
+      "domain": "sitio-eb068.example",
+      "count": 60
+    },
+    {
+      "domain": "sitio-f19d3.example",
+      "count": 52
+    },
+    {
+      "domain": "host-b99f.local",
+      "count": 40
+    },
+    {
+      "domain": "sitio-689d9.example",
+      "count": 39
+    },
+    {
+      "domain": "sitio-1fe09.example",
+      "count": 32
+    },
+    {
+      "domain": "sitio-1f702.example",
+      "count": 30
+    },
+    {
+      "domain": "sitio-5f65c.example",
+      "count": 28
+    },
+    {
+      "domain": "sitio-364d0.example",
+      "count": 28
+    },
+    {
+      "domain": "sitio-f893d.example",
+      "count": 28
+    },
+    {
+      "domain": "sitio-17b62.example",
+      "count": 28
+    },
+    {
+      "domain": "sitio-c43b8.example",
+      "count": 28
+    },
+    {
+      "domain": "sitio-f2d32.example",
+      "count": 28
+    },
+    {
+      "domain": "sitio-f170b.example",
+      "count": 26
+    },
+    {
+      "domain": "host-a3d3.local",
+      "count": 22
+    },
+    {
+      "domain": "host-ad44.local",
+      "count": 22
+    },
+    {
+      "domain": "sitio-4c99f.example",
+      "count": 22
+    },
+    {
+      "domain": "sitio-24c40.example",
+      "count": 22
+    },
+    {
+      "domain": "host-26fa.local",
+      "count": 21
+    },
+    {
+      "domain": "host-9179.local",
+      "count": 20
+    },
+    {
+      "domain": "sitio-4476d.example",
+      "count": 20
+    },
+    {
+      "domain": "sitio-a92d9.example",
+      "count": 20
+    },
+    {
+      "domain": "sitio-cef48.example",
+      "count": 20
+    },
+    {
+      "domain": "sitio-4890d.example",
+      "count": 20
+    },
+    {
+      "domain": "sitio-f42d4.example",
+      "count": 20
+    },
+    {
+      "domain": "sitio-53bf2.example",
+      "count": 19
+    },
+    {
+      "domain": "host-b078.local",
+      "count": 19
+    },
+    {
+      "domain": "host-1e38.local",
+      "count": 18
+    },
+    {
+      "domain": "host-cd8c.local",
+      "count": 18
+    },
+    {
+      "domain": "sitio-8c49f.example",
+      "count": 18
+    }
+  ],
+  "alerts": [
+    {
+      "key": "192.168.1.27\u2192255.255.255.255:6667",
+      "time": "11:13:30",
+      "src": "192.168.1.27",
+      "dst": "255.255.255.255",
+      "port": 6667,
+      "desc": "\ud83d\udd34 IRC (C2 botnet cl\u00e1sico)"
+    },
+    {
+      "key": "192.168.1.25\u2192255.255.255.255:6667",
+      "time": "11:13:32",
+      "src": "192.168.1.25",
+      "dst": "255.255.255.255",
+      "port": 6667,
+      "desc": "\ud83d\udd34 IRC (C2 botnet cl\u00e1sico)"
+    },
+    {
+      "key": "192.168.1.13\u21921.1.1.1:3333",
+      "time": "11:20:00",
+      "src": "192.168.1.13",
+      "dst": "1.1.1.1",
+      "port": 3333,
+      "desc": "\u26cf  Miner\u00eda (Ethermine)"
+    }
+  ]
+}

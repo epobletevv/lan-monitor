@@ -1,0 +1,27 @@
+{
+  "index_patterns": ["lanmon-*"],
+  "priority": 200,
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "dynamic_templates": [
+        { "strings_as_keyword": {
+            "match_mapping_type": "string",
+            "mapping": { "type": "keyword", "ignore_above": 1024 }
+        } }
+      ],
+      "properties": {
+        "source":      { "properties": { "ip": { "type": "ip" } } },
+        "destination": { "properties": { "ip": { "type": "ip" }, "port": { "type": "integer" },
+                                         "geo": { "properties": { "location": { "type": "geo_point" } } } } },
+        "device":      { "properties": { "ip": { "type": "ip" }, "open_ports": { "type": "integer" } } },
+        "port":        { "properties": { "number": { "type": "integer" } } },
+        "lan":         { "properties": { "gateway": { "type": "ip" } } },
+        "error":       { "properties": { "raw": { "type": "text" } } }
+      }
+    }
+  }
+}

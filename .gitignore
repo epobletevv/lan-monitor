@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+*.hprof
+
+# Resultados de los escáneres: contienen las IP y MAC de tu red.
+lan_*.json
+lan_*.html
+reports/
+
+# Las muestras de prueba sí van (están anonimizadas).
+!tests/samples/*.json
