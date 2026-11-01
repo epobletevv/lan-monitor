@@ -59,10 +59,10 @@ Hay dos, enlazados entre sí:
 ### Dispositivos y tráfico
 
 - Cuántos dispositivos distintos hay y cuántos tienen puertos abiertos.
-- Ancho de banda en el tiempo (bajada y subida) del equipo que escanea.
+- Ancho de banda en el tiempo (bajada y subida) del equipo que escanea, en Mbps.
 - Dispositivos conectados a lo largo del tiempo y repartidos por fabricante.
 - Tabla de dispositivos: IP, MAC, fabricante, hostname, puertos abiertos y última vez visto.
-- Tráfico por dispositivo en el tiempo y ranking de los que más consumen.
+- Tráfico por dispositivo en el tiempo (Mbps) y ranking de los que más consumen (bytes).
 - Destinos de internet más contactados y dominios DNS más consultados.
 - Puertos abiertos por dispositivo con su nivel de riesgo.
 - Alertas por puertos asociados a minería, C2 o acceso remoto sin cifrar.
@@ -99,7 +99,7 @@ Es un diagnóstico por reglas (qué puerto está abierto y a dónde va el tráfi
 
 Para los destinos públicos, Logstash agrega la organización o ISP dueña de la IP y el país, usando la base GeoLite2 que viene incluida en su imagen (sin consultas a internet). Los destinos de la propia red y los broadcast no llevan esos campos.
 
-El sniffer guarda contadores acumulados desde que arrancó. Logstash calcula la diferencia contra el minuto anterior en `traffic.delta.*`; esos son los campos que hay que sumar en los gráficos. `traffic.rate.bps_*` es ese mismo delta expresado en bits por segundo, para graficar ancho de banda. El primer snapshot después de un reinicio no trae `delta` ni `rate`.
+El sniffer guarda contadores acumulados desde que arrancó. Logstash calcula la diferencia contra el minuto anterior en `traffic.delta.*`; esos son los campos que hay que sumar en los gráficos. `traffic.rate.bps_*` es ese mismo delta expresado en bits por segundo, para graficar ancho de banda. El primer snapshot después de un reinicio no trae `delta` ni `rate`. El data view de Kibana agrega los campos calculados `traffic.rate.mbps_in`, `traffic.rate.mbps_out` y `traffic.rate.mbps_total` (los mismos valores en Mbps), que es lo que muestran los gráficos.
 
 ## Configuración
 
@@ -122,6 +122,7 @@ Nada está fijo en el código: los escáneres leen todo de variables de entorno 
 | `LAN_RETENTION_MIN` | `720` | Minutos que se conservan los JSON crudos |
 | `ELK_VERSION`, `ES_HEAP` | `8.13.0`, `1g` | Versión de Elastic y memoria de Elasticsearch |
 | `BIND_ADDR`, `ES_PORT`, `KIBANA_PORT` | `127.0.0.1`, `9200`, `5601` | Dónde se publican Elasticsearch y Kibana |
+| `LOG_MAX_SIZE`, `LOG_MAX_FILE` | `50m`, `3` | Tamaño y cantidad de archivos del log de cada contenedor |
 
 Un valor inválido (por ejemplo `LAN_PORTS_MODE=turbo`) detiene el escáner con un mensaje claro en vez de seguir con un valor adivinado. Si la red no se puede detectar, pide definir `LAN_IFACE` y `LAN_NETWORK`.
 

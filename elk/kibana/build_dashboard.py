@@ -56,8 +56,8 @@ def metric(op, field, label, fmt=None, dtype="number"):
             col["scale"] = "ordinal"
     if fmt == "bytes":
         col["params"]["format"] = {"id": "bytes", "params": {"decimals": 1}}
-    elif fmt == "bps":
-        col["params"]["format"] = {"id": "bits", "params": {"decimals": 1, "suffix": "/s"}}
+    elif fmt == "mbps":
+        col["params"]["format"] = {"id": "number", "params": {"decimals": 3, "suffix": " Mbps"}}
     elif fmt == "int":
         col["params"]["format"] = {"id": "number", "params": {"decimals": 0}}
     return col
@@ -191,8 +191,8 @@ PANELS = [
 
     (lens("lanmon-x-bandwidth", "Ancho de banda en el tiempo (este equipo)", "lnsXY",
           {"x":   date_histogram(),
-           "in":  metric("average", "traffic.rate.bps_in", "Bajada", "bps"),
-           "out": metric("average", "traffic.rate.bps_out", "Subida", "bps")},
+           "in":  metric("average", "traffic.rate.mbps_in", "Bajada", "mbps"),
+           "out": metric("average", "traffic.rate.mbps_out", "Subida", "mbps")},
           vis_xy("area", ["in", "out"]), Q_SUMMARY), 0, 7, 48, 12),
 
     (lens("lanmon-x-devcount", "Dispositivos conectados en el tiempo", "lnsXY",
@@ -219,7 +219,7 @@ PANELS = [
     (lens("lanmon-x-traffic", "Tráfico por dispositivo", "lnsXY",
           {"x": date_histogram(),
            "s": terms("source.ip", "Dispositivo", 10, "m", dtype="ip"),
-           "m": metric("sum", "traffic.delta.bytes_total", "Bytes", "bytes")},
+           "m": metric("average", "traffic.rate.mbps_total", "Mbps", "mbps")},
           vis_xy("area_stacked", ["m"], split="s"), Q_HOST), 0, 35, 30, 13),
 
     (lens("lanmon-x-tophosts", "Top dispositivos por tráfico", "lnsXY",
@@ -389,11 +389,28 @@ def dashboard(dash_id, title, description, panel_defs, objects):
     })
 
 
+# Campos calculados en el data view: Logstash guarda bits por segundo y los
+# gráficos muestran Mbps. Al ser runtime fields sirven también para los datos viejos.
+def mbps(*fields):
+    """Script painless que suma los campos dados y los pasa a Mbps."""
+    parts = " + ".join(f"doc['{f}'].value" for f in fields)
+    cond = " && ".join(f"doc.containsKey('{f}') && doc['{f}'].size() > 0" for f in fields)
+    return {"type": "double", "script": {"source": f"if ({cond}) {{ emit(({parts}) / 1000000.0); }}"}}
+
+
+RUNTIME_FIELDS = {
+    "traffic.rate.mbps_in":    mbps("traffic.rate.bps_in"),
+    "traffic.rate.mbps_out":   mbps("traffic.rate.bps_out"),
+    "traffic.rate.mbps_total": mbps("traffic.rate.bps_in", "traffic.rate.bps_out"),
+}
+
+
 def main():
     objects = [{
         "type": "index-pattern", "id": DV_ID,
         "typeMigrationVersion": "8.0.0", "coreMigrationVersion": "8.8.0",
-        "attributes": {"title": "lanmon-*", "name": "LAN Monitor", "timeFieldName": "@timestamp"},
+        "attributes": {"title": "lanmon-*", "name": "LAN Monitor", "timeFieldName": "@timestamp",
+                       "runtimeFieldMap": json.dumps(RUNTIME_FIELDS)},
         "references": [],
     }]
 

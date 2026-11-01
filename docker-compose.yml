@@ -1,5 +1,13 @@
 name: lan-monitor
 
+# Límite de los logs de cada contenedor. Sin esto Docker los deja crecer sin fin
+# y un error repetido (p. ej. de Filebeat) puede llenar el disco.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: ${LOG_MAX_SIZE:-50m}
+    max-file: "${LOG_MAX_FILE:-3}"
+
 x-scanner: &scanner
   build: ./scanner
   image: lan-monitor-scanner
@@ -30,6 +38,7 @@ x-scanner: &scanner
     - LAN_RETENTION_MIN
   volumes:
     - lan_logs:/var/log/lan-monitor
+  logging: *logging
   restart: unless-stopped
 
 services:
@@ -49,6 +58,7 @@ services:
 
   # ── ELK ─────────────────────────────────────────────────────────────────────
   elasticsearch:
+    logging: *logging
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION:-8.13.0}
     environment:
       - discovery.type=single-node
@@ -67,6 +77,7 @@ services:
     restart: unless-stopped
 
   kibana:
+    logging: *logging
     image: docker.elastic.co/kibana/kibana:${ELK_VERSION:-8.13.0}
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
@@ -85,6 +96,7 @@ services:
 
   # Carga la plantilla de índices y el dashboard, y termina.
   setup:
+    logging: *logging
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION:-8.13.0}
     user: "0"
     entrypoint: ["/bin/bash", "/setup/setup.sh"]
@@ -100,6 +112,7 @@ services:
     restart: "no"
 
   logstash:
+    logging: *logging
     image: docker.elastic.co/logstash/logstash:${ELK_VERSION:-8.13.0}
     environment:
       - LS_JAVA_OPTS=-Xms512m -Xmx512m
@@ -122,6 +135,7 @@ services:
     restart: unless-stopped
 
   filebeat:
+    logging: *logging
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION:-8.13.0}
     user: root
     command: ["filebeat", "-e", "--strict.perms=false"]
