@@ -170,6 +170,7 @@ Q_PORT   = 'event.dataset : "ports.port"'
 # Broadcast y multicast no salen de la LAN: no cuentan como alerta.
 Q_ALERT  = 'event.dataset : "alert" and not destination.scope : ("broadcast" or "multicast")'
 Q_SUMMARY = 'event.dataset : "traffic.summary"'
+Q_IDS    = 'event.dataset : "ids.alert"'
 
 # (lens, x, y, w, h) — la grilla de Kibana tiene 48 columnas
 PANELS = [
@@ -277,7 +278,8 @@ DIAG_PANELS = [
         "La severidad de cada puerto va de 0 a 100: 100 crítico, 40 alto, 10 medio.\n\n"
         "Los escaneos de puertos se repiten cada 30 minutos; un hallazgo corregido deja de aparecer "
         "cuando sale del rango de tiempo elegido arriba. "
-        "[Ver dispositivos y tráfico](/app/dashboards#/view/lanmon-overview)"), 0, 0, 48, 6),
+        "[Ver dispositivos y tráfico](/app/dashboards#/view/lanmon-overview) · "
+        "[Ver alertas del IDS (Suricata)](/app/dashboards#/view/lanmon-ids)"), 0, 0, 48, 6),
 
     (lens("lanmon-d-critical", "Puertos de riesgo crítico", "lnsMetric",
           {"m": metric("unique_count", "port.id", "Abiertos en la red", "int")},
@@ -346,6 +348,78 @@ DIAG_PANELS = [
            "n":    metric("count", None, "Minutos visto", "int")},
           vis_table(["src", "dst", "port", "cat", "org", "pais", "n"], 8),
           Q_CONN + ' and threat.category : * and destination.scope : "public"'), 20, 39, 28, 12),
+]
+
+
+
+# ── Dashboard del IDS (Suricata) ─────────────────────────────────────────────
+
+# En Suricata la severidad va al revés: 1 = alta, 3 = baja.
+SEV_SURICATA = palette((0, RED), (2, AMBER), (3, GREEN))
+
+IDS_TABLE = lens("lanmon-i-alerts", "Alertas del IDS (Suricata)", "lnsDatatable",
+      {"src":   terms("source.ip", "Origen", 30, "n", dtype="ip"),
+       "dst":   terms("destination.ip", "Destino", 10, "n", dtype="ip"),
+       "port":  terms("destination.port", "Puerto", 3, "n", dtype="number"),
+       "rule":  terms("rule.name", "Firma", 5, "n"),
+       "sev":   metric("min", "event.severity", "Severidad", "int"),
+       "proto": metric("last_value", "network.protocol", "Protocolo", dtype="string"),
+       "dom":   metric("last_value", "url.domain", "Sitio", dtype="string"),
+       "orgd":  metric("last_value", "destination.as.organization.name", "Org. destino", dtype="string"),
+       "orgs":  metric("last_value", "source.as.organization.name", "Org. origen", dtype="string"),
+       "seen":  metric("last_value", "@timestamp", "Última vez", dtype="date"),
+       "n":     metric("count", None, "Veces", "int")},
+      vis_table(["sev", "src", "dst", "port", "proto", "dom", "rule", "orgd", "orgs", "seen", "n"], 10,
+                colored={"sev": SEV_SURICATA}),
+      Q_IDS)
+
+IDS_PANELS = [
+    (markdown(
+        "## IDS — Alertas de Suricata\n"
+        "Suricata revisa el tráfico de este equipo contra miles de reglas (malware, escaneos, C2, exploits). "
+        "**Severidad 1** = alta (rojo), **2** = media (amarillo), **3** = baja (verde). "
+        "Solo ve el tráfico que pasa por la interfaz donde escucha.\n\n"
+        "[Ver diagnóstico](/app/dashboards#/view/lanmon-diagnostico) · "
+        "[Ver dispositivos y tráfico](/app/dashboards#/view/lanmon-overview)"), 0, 0, 48, 5),
+
+    (lens("lanmon-i-total", "Alertas del IDS", "lnsMetric",
+          {"m": metric("count", None, "Alertas en el período", "int")},
+          vis_metric("m"), Q_IDS), 0, 5, 12, 7),
+
+    (lens("lanmon-i-high", "Severidad alta", "lnsMetric",
+          {"m": metric("count", None, "Alertas de severidad 1", "int")},
+          vis_metric("m", SEMAFORO_ROJO), Q_IDS + " and event.severity : 1"), 12, 5, 12, 7),
+
+    (lens("lanmon-i-medium", "Severidad media", "lnsMetric",
+          {"m": metric("count", None, "Alertas de severidad 2", "int")},
+          vis_metric("m", SEMAFORO_AMBAR), Q_IDS + " and event.severity : 2"), 24, 5, 12, 7),
+
+    (lens("lanmon-i-rules", "Firmas distintas", "lnsMetric",
+          {"m": metric("unique_count", "rule.id", "Reglas que saltaron", "int")},
+          vis_metric("m"), Q_IDS), 36, 5, 12, 7),
+
+    (lens("lanmon-i-time", "Alertas en el tiempo por severidad", "lnsXY",
+          {"x": date_histogram(),
+           "s": terms("alert.severity_label", "Severidad", 3, "m"),
+           "m": metric("count", None, "Alertas", "int")},
+          vis_xy("bar_stacked", ["m"], split="s"), Q_IDS), 0, 12, 30, 12),
+
+    (lens("lanmon-i-category", "Alertas por categoría", "lnsPie",
+          {"g": terms("rule.category", "Categoría", 10, "m", missing=True),
+           "m": metric("count", None, "Alertas", "int")},
+          vis_donut("g", "m"), Q_IDS), 30, 12, 18, 12),
+
+    (lens("lanmon-i-top", "Firmas más frecuentes", "lnsDatatable",
+          {"rule": terms("rule.name", "Firma", 30, "n"),
+           "sev":  metric("min", "event.severity", "Severidad", "int"),
+           "cat":  metric("last_value", "rule.category", "Categoría", dtype="string"),
+           "hosts": metric("unique_count", "source.ip", "Orígenes", "int"),
+           "seen": metric("last_value", "@timestamp", "Última vez", dtype="date"),
+           "n":    metric("count", None, "Veces", "int")},
+          vis_table(["sev", "rule", "cat", "hosts", "seen", "n"], 10, colored={"sev": SEV_SURICATA}, sort="n"),
+          Q_IDS), 0, 24, 48, 13),
+
+    (IDS_TABLE, 0, 37, 48, 15),
 ]
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -423,7 +497,9 @@ def main():
               "Dispositivos encontrados en la LAN, tráfico, puertos abiertos y alertas.", overview, objects)
     dashboard("lanmon-diagnostico", "LAN Monitor — Diagnóstico",
               "Hallazgos de seguridad de la LAN con su severidad y qué hacer con cada uno.",
-              DIAG_PANELS + [(alerts, 0, 51, 48, 10)], objects)
+              DIAG_PANELS + [(alerts, 0, 51, 48, 10), (IDS_TABLE, 0, 61, 48, 12)], objects)
+    dashboard("lanmon-ids", "LAN Monitor — IDS (Suricata)",
+              "Alertas de Suricata: firmas, severidad, equipos involucrados y destinos.", IDS_PANELS, objects)
 
     for obj in objects:
         sys.stdout.write(json.dumps(obj, ensure_ascii=False) + "\n")

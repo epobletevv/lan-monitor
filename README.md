@@ -51,10 +51,11 @@ Abre <http://localhost:5601> → **Dashboards** → **LAN Monitor — Dispositiv
 
 ## Dashboards
 
-Hay dos, enlazados entre sí:
+Hay tres, enlazados entre sí:
 
 - **LAN Monitor — Dispositivos y tráfico**: qué hay en la red y cuánto consume.
 - **LAN Monitor — Diagnóstico**: qué habría que revisar, con severidad y acción recomendada.
+- **LAN Monitor — IDS (Suricata)**: alertas de Suricata, si está instalado en el equipo.
 
 ### Dispositivos y tráfico
 
@@ -78,7 +79,26 @@ Pensado para leerse de arriba hacia abajo unos 30 minutos después de arrancar, 
 - **Dispositivos sin identificar**: los que no tienen fabricante conocido.
 - **Conexiones y alertas**: tráfico hacia internet por puertos asociados a minería, C2 o acceso remoto.
 
-Es un diagnóstico por reglas (qué puerto está abierto y a dónde va el tráfico), no un análisis de vulnerabilidades: no prueba contraseñas ni versiones con fallas conocidas.
+Es un diagnóstico por reglas (qué puerto está abierto y a dónde va el tráfico), no un análisis de vulnerabilidades: no prueba contraseñas ni versiones con fallas conocidas. Al final también muestra las alertas del IDS.
+
+### IDS (Suricata)
+
+Opcional. Si [Suricata](https://suricata.io) está instalado en el equipo, Filebeat lee su `eve.json` y envía **solo las alertas** (flujos, DNS, TLS y estadísticas se quedan en el archivo).
+
+- Semáforos: total de alertas, de severidad alta (1) y media (2), y cuántas firmas distintas saltaron.
+- Alertas en el tiempo por severidad y repartidas por categoría.
+- Firmas más frecuentes y tabla de detalle: origen, destino, puerto, protocolo, sitio (HTTP Host o SNI), organización de cada lado y cuántas veces se repitió.
+
+Puesta en marcha en el equipo:
+
+```bash
+sudo apt install suricata -y
+sudo suricata-update
+# En /etc/suricata/suricata.yaml, sección af-packet: la interfaz por la que sale el tráfico.
+sudo systemctl restart suricata
+```
+
+Suricata solo ve el tráfico que pasa por esa interfaz: por WiFi o sin un puerto espejo en el switch, es el tráfico de este equipo y no el del resto de la LAN.
 
 ## Datos en Elasticsearch
 
@@ -95,9 +115,10 @@ Es un diagnóstico por reglas (qué puerto está abierto y a dónde va el tráfi
 | | `traffic.dns` | dominio del top 30 y minuto | `dns.question.name`, `dns.delta` |
 | | `traffic.summary` | minuto | `traffic.delta.*`, `traffic.rate.bps_in`, `traffic.rate.bps_out`, `traffic.uptime_secs` |
 | `lanmon-alerts-*` | `alert` | alerta (sin duplicados) | `source.ip`, `destination.ip`, `alert.description`, `threat.category` |
-| `lanmon-errors-*` | `error.json` | archivo que no se pudo leer | `error.raw`, `source_file` |
+| `lanmon-ids-*` | `ids.alert` | alerta de Suricata (sin duplicados) | `rule.name`, `rule.id`, `rule.category`, `event.severity` (1 alta – 3 baja), `alert.severity_label`, `source.ip`, `destination.ip`, `destination.port`, `network.transport`, `network.protocol`, `url.domain` |
+| `lanmon-errors-*` | `error.json` | archivo o línea que no se pudo leer | `error.raw`, `source_file` |
 
-Para los destinos públicos, Logstash agrega la organización o ISP dueña de la IP y el país, usando la base GeoLite2 que viene incluida en su imagen (sin consultas a internet). Los destinos de la propia red y los broadcast no llevan esos campos.
+Para los destinos públicos, Logstash agrega la organización o ISP dueña de la IP y el país, usando la base GeoLite2 que viene incluida en su imagen (sin consultas a internet). Los destinos de la propia red y los broadcast no llevan esos campos. En las alertas de Suricata también se completa el origen cuando es público (por ejemplo, la respuesta de un servidor).
 
 El sniffer guarda contadores acumulados desde que arrancó. Logstash calcula la diferencia contra el minuto anterior en `traffic.delta.*`; esos son los campos que hay que sumar en los gráficos. `traffic.rate.bps_*` es ese mismo delta expresado en bits por segundo, para graficar ancho de banda. El primer snapshot después de un reinicio no trae `delta` ni `rate`. El data view de Kibana agrega los campos calculados `traffic.rate.mbps_in`, `traffic.rate.mbps_out` y `traffic.rate.mbps_total` (los mismos valores en Mbps), que es lo que muestran los gráficos.
 
@@ -120,6 +141,7 @@ Nada está fijo en el código: los escáneres leen todo de variables de entorno 
 | `LAN_TRAFFIC_TOP_CONNECTIONS`, `LAN_TRAFFIC_TOP_DNS` | `20`, `30` | Cuántas conexiones y dominios guarda cada snapshot |
 | `LAN_EXTERNAL_LOOKUPS` | `false` | Consultar `api.macvendors.com` e `ip-api.com` |
 | `LAN_RETENTION_MIN` | `720` | Minutos que se conservan los JSON crudos |
+| `LAN_SURICATA_LOG_DIR` | `/var/log/suricata` | Carpeta del `eve.json` de Suricata que lee Filebeat |
 | `ELK_VERSION`, `ES_HEAP` | `8.13.0`, `1g` | Versión de Elastic y memoria de Elasticsearch |
 | `BIND_ADDR`, `ES_PORT`, `KIBANA_PORT` | `127.0.0.1`, `9200`, `5601` | Dónde se publican Elasticsearch y Kibana |
 | `LOG_MAX_SIZE`, `LOG_MAX_FILE` | `50m`, `3` | Tamaño y cantidad de archivos del log de cada contenedor |

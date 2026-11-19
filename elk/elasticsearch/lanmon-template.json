@@ -14,8 +14,8 @@
         } }
       ],
       "properties": {
-        "source":      { "properties": { "ip": { "type": "ip" } } },
-        "destination": { "properties": { "ip": { "type": "ip" }, "port": { "type": "integer" },
+        "source":      { "properties": { "ip": { "type": "ip" }, "port": { "type": "integer" },
+                                         "geo": { "properties": { "location": { "type": "geo_point" } } } } },        "destination": { "properties": { "ip": { "type": "ip" }, "port": { "type": "integer" },
                                          "geo": { "properties": { "location": { "type": "geo_point" } } } } },
         "device":      { "properties": { "ip": { "type": "ip" }, "open_ports": { "type": "integer" } } },
         "port":        { "properties": { "number": { "type": "integer" } } },

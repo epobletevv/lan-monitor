@@ -62,6 +62,18 @@ filebeat.inputs:
       module: lan-ports
     fields_under_root: true
 
+  # Suricata escribe NDJSON (un evento por línea): no necesita multiline.
+  # Solo se envían las alertas; flujos, DNS, TLS y estadísticas se quedan en el archivo.
+  - type: filestream
+    id: lanmon-suricata
+    enabled: true
+    paths:
+      - /var/log/suricata/eve.json
+    include_lines: ['"event_type": *"alert"']
+    fields:
+      module: suricata
+    fields_under_root: true
+
 output.logstash:
   hosts: ["logstash:5044"]
 

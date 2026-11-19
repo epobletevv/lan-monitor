@@ -142,6 +142,8 @@ services:
     volumes:
       - ./elk/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - lan_logs:/var/log/lan-monitor:ro
+      # Alertas de Suricata instalado en el equipo (opcional: si no existe, no se lee nada).
+      - ${LAN_SURICATA_LOG_DIR:-/var/log/suricata}:/var/log/suricata:ro
       - filebeat_data:/usr/share/filebeat/data
     depends_on:
       - logstash

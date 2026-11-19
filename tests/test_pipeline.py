@@ -28,6 +28,7 @@ def run_filebeat(work: Path) -> list[dict]:
     (work / "filebeat.yml").write_text(cfg)
     cmd = ["docker", "run", "--rm", "--name", "lanmon-test-fb", "--network", "none",
            "-v", f"{SAMPLES}:/var/log/lan-monitor:ro",
+           "-v", f"{SAMPLES}/suricata:/var/log/suricata:ro",
            "-v", f"{work}/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro",
            f"docker.elastic.co/beats/filebeat:{VERSION}", "filebeat", "-e", "--strict.perms=false"]
     try:
@@ -79,7 +80,11 @@ def main() -> int:
 
         print("Filebeat …")
         fb = run_filebeat(work)
-        check("un evento por archivo", len(fb), len(list(SAMPLES.glob("lan_*.json"))))
+        check("un evento por archivo", sum(1 for e in fb if e.get("module") != "suricata"),
+              len(list(SAMPLES.glob("lan_*.json"))))
+        eve = (SAMPLES / "suricata/eve.json").read_text().splitlines()
+        check("Suricata: solo líneas de alerta", sum(1 for e in fb if e.get("module") == "suricata"),
+              sum(1 for l in eve if '"event_type":"alert"' in l.replace(" ", "")))
 
         print("Logstash …")
         rows = run_logstash(work, fb)
@@ -97,7 +102,7 @@ def main() -> int:
     check("devices.device", count["devices.device"], len(scan["devices"]))
     check("ports.device", count["ports.device"], len(ports["devices"]))
     check("ports.port", count["ports.port"], sum(len(d["ports"]) for d in ports["devices"]))
-    check("error.json (archivo roto)", count["error.json"], 1)
+    check("error.json (archivo roto y línea de Suricata rota)", count["error.json"], 2)
     p80 = next(r for r in rows if r["event"]["dataset"] == "ports.port" and r["port"]["number"] == 80)["port"]
     check("puerto 80: riesgo, puntaje y recomendación", (p80["risk"], p80["risk_score"], bool(p80["recommendation"])), ("medium", 10, True))
 
@@ -120,7 +125,7 @@ def main() -> int:
         "2026-10-01T14:32")
     check("índice coherente con el dataset",
           sum(1 for r in rows if r["idx"] != {"traffic": "traffic", "alert": "alerts", "devices": "devices",
-                                              "ports": "ports", "error": "errors"}[r["event"]["dataset"].split(".")[0]]), 0)
+                                              "ports": "ports", "error": "errors", "ids": "ids"}[r["event"]["dataset"].split(".")[0]]), 0)
 
     dns8 = next(r for r in rows if r["event"]["dataset"] == "traffic.connection" and r["destination"]["ip"] == "8.8.8.8")
     check("organización del destino (8.8.8.8)", dns8["destination"].get("as", {}).get("organization", {}).get("name"), "Google LLC")
@@ -128,6 +133,24 @@ def main() -> int:
     check("hora de la alerta (11:20 local)", sorted({a["@timestamp"][:16] for a in alerts}), ["2026-10-01T14:20"])
     check("broadcast no genera alerta", any(a["destination"]["scope"] != "public" for a in alerts), False)
     check("alerta con organización del destino", all("as" in a["destination"] for a in alerts), True)
+
+    ids = [r for r in rows if r["event"]["dataset"] == "ids.alert"]
+    check("Suricata: alertas (dos distintas, una repetida)", len(ids), 3)
+    check("Suricata: la repetida tiene el mismo _id", len({r["doc_id"] for r in ids}), 2)
+    test = next(r for r in ids if r["rule"]["id"] == "9000001")
+    root = next(r for r in ids if r["rule"]["id"] == "2100498")
+    check("Suricata: hora con zona → UTC", test["@timestamp"][:19], "2026-10-01T14:40:00")
+    check("Suricata: firma, severidad y etiqueta",
+          (root["rule"]["name"], root["event"]["severity"], root["alert"]["severity_label"]),
+          ("GPL ATTACK_RESPONSE id check returned root", 2, "media"))
+    check("Suricata: puertos, transporte y protocolo",
+          (test["source"]["port"], test["destination"]["port"], test["network"]["transport"], test["network"]["protocol"]),
+          (51000, 80, "tcp", "http"))
+    check("Suricata: dominio desde HTTP Host", test.get("url", {}).get("domain"), "example.com")
+    check("Suricata: organización del destino público", test["destination"].get("as", {}).get("organization", {}).get("name"), "Google LLC")
+    check("Suricata: organización del origen público (respuesta)", root["source"].get("as", {}).get("organization", {}).get("name"), "Google LLC")
+    check("Suricata: sin restos del evento original",
+          any(k in r for r in ids for k in ("message", "suricata", "log", "agent")), False)
 
     print(f"\n{len(rows)} eventos. " + ("TODO OK" if not fails else f"FALLARON: {', '.join(fails)}"))
     return 1 if fails else 0

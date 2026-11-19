@@ -1,5 +1,20 @@
 # Cambios
 
+## Sin publicar
+
+### Nuevo
+
+- **Alertas de Suricata (IDS).** Si Suricata está instalado en el equipo, Filebeat lee `eve.json` y envía solo las alertas. Logstash las pasa a campos ECS (`rule.*`, `event.severity`, `source.*`, `destination.*`, `network.*`, `url.domain`) en el índice `lanmon-ids-*`, con organización y país de la IP pública. Cada línea tiene un `_id` fijo: leerla dos veces no la duplica.
+- **Dashboard "LAN Monitor — IDS (Suricata)"**, y la tabla de alertas del IDS al final del de Diagnóstico.
+- `LAN_SURICATA_LOG_DIR` para indicar dónde está `eve.json` (por defecto `/var/log/suricata`).
+
+### Actualizar
+
+```bash
+docker compose up -d
+docker compose run --rm setup   # plantilla de índices y dashboards
+```
+
 ## v0.2.0-beta.1 — 2026-11-01
 
 ### Mejoras
