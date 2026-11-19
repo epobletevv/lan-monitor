@@ -4,6 +4,14 @@ Escanea tu red local desde contenedores Docker y muestra en Kibana qué disposit
 
 > Úsalo solo en redes que administras. Escanear redes ajenas puede ser ilegal.
 
+![Dashboard de dispositivos y tráfico en Kibana](docs/img/portada.png)
+
+| Dispositivos y tráfico | Diagnóstico | IDS (Suricata) |
+|:---:|:---:|:---:|
+| [![Dispositivos y tráfico](docs/img/dashboard-trafico.png)](docs/img/dashboard-trafico.png) | [![Diagnóstico](docs/img/dashboard-diagnostico.png)](docs/img/dashboard-diagnostico.png) | [![IDS (Suricata)](docs/img/dashboard-ids.png)](docs/img/dashboard-ids.png) |
+
+<sub>Capturas de una red real con IPs, MAC, hostnames y dominios ocultos. Clic para verlas completas.</sub>
+
 ## Cómo funciona
 
 ```
@@ -181,6 +189,7 @@ elk/filebeat/   Lectura de los JSON
 elk/logstash/   Reparto en eventos y cálculo de deltas
 elk/elasticsearch/  Plantilla de índices
 elk/kibana/     Generador del dashboard y el .ndjson resultante
+docs/img/       Capturas de los dashboards para este README
 elk/setup/      Script que instala plantilla y dashboard
 tests/          Muestras anonimizadas y prueba de la carga
 ```
