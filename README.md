@@ -108,6 +108,13 @@ sudo systemctl restart suricata
 
 Suricata solo ve el tráfico que pasa por esa interfaz: por WiFi o sin un puerto espejo en el switch, es el tráfico de este equipo y no el del resto de la LAN.
 
+**Tráfico de los propios escáneres.** Los dashboards no muestran lo que generan las herramientas del proyecto:
+
+- Con `LAN_SELF_IPS` definida, Logstash marca con `lanmon.self_generated` (y el motivo en `lanmon.self_reason`) las alertas de Suricata que provocan los escaneos desde ese equipo: las consultas a ip-api.com y el escaneo nmap hacia la LAN con las anomalías de protocolo que produce. Una alerta de otra categoría, o que venga de otro equipo, se sigue mostrando.
+- La tabla de dominios DNS no incluye las consultas inversas (`*.arpa`), que hace el sniffer al buscar el nombre de cada IP.
+
+Los datos no se borran: en Discover se ven con `lanmon.self_generated : true` o `dns.question.name : *.arpa`.
+
 ## Datos en Elasticsearch
 
 Índices mensuales `lanmon-<tipo>-AAAA.MM`. El campo `event.dataset` dice qué representa cada documento:
@@ -150,6 +157,7 @@ Nada está fijo en el código: los escáneres leen todo de variables de entorno 
 | `LAN_EXTERNAL_LOOKUPS` | `false` | Consultar `api.macvendors.com` e `ip-api.com` |
 | `LAN_RETENTION_MIN` | `720` | Minutos que se conservan los JSON crudos |
 | `LAN_SURICATA_LOG_DIR` | `/var/log/suricata` | Carpeta del `eve.json` de Suricata que lee Filebeat |
+| `LAN_SELF_IPS` | vacío | IP del equipo que escanea: las alertas de Suricata que provocan sus propios escaneos se marcan y no se grafican |
 | `LAN_FILEBEAT_IGNORE_OLDER`, `LAN_FILEBEAT_CLEAN_INACTIVE` | `6h`, `7h` | Filebeat no revisa los JSON más viejos que eso al reiniciar y los olvida. Si queda caído más tiempo, lo anterior no se carga |
 | `ELK_VERSION`, `ES_HEAP` | `8.13.0`, `1g` | Versión de Elastic y memoria de Elasticsearch |
 | `BIND_ADDR`, `ES_PORT`, `KIBANA_PORT` | `127.0.0.1`, `9200`, `5601` | Dónde se publican Elasticsearch y Kibana |

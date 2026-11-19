@@ -165,12 +165,14 @@ def lens(obj_id, title, vis_type, columns, visualization, query):
 Q_DEVICE = 'event.dataset : "devices.device"'
 Q_HOST   = 'event.dataset : "traffic.host"'
 Q_CONN   = 'event.dataset : "traffic.connection"'
-Q_DNS    = 'event.dataset : "traffic.dns"'
+# Las consultas inversas (*.arpa) las hace el propio sniffer al buscar el nombre de cada IP.
+Q_DNS    = 'event.dataset : "traffic.dns" and not dns.question.name : *.arpa'
 Q_PORT   = 'event.dataset : "ports.port"'
 # Broadcast y multicast no salen de la LAN: no cuentan como alerta.
 Q_ALERT  = 'event.dataset : "alert" and not destination.scope : ("broadcast" or "multicast")'
 Q_SUMMARY = 'event.dataset : "traffic.summary"'
-Q_IDS    = 'event.dataset : "ids.alert"'
+# Sin las alertas que provocan los propios escáneres (Logstash las marca; ver LAN_SELF_IPS).
+Q_IDS    = 'event.dataset : "ids.alert" and not lanmon.self_generated : true'
 
 # (lens, x, y, w, h) — la grilla de Kibana tiene 48 columnas
 PANELS = [
@@ -378,7 +380,9 @@ IDS_PANELS = [
         "## IDS — Alertas de Suricata\n"
         "Suricata revisa el tráfico de este equipo contra miles de reglas (malware, escaneos, C2, exploits). "
         "**Severidad 1** = alta (rojo), **2** = media (amarillo), **3** = baja (verde). "
-        "Solo ve el tráfico que pasa por la interfaz donde escucha.\n\n"
+        "Solo ve el tráfico que pasa por la interfaz donde escucha. "
+        "No se muestran las alertas que provocan los propios escáneres (nmap, consultas a ip-api); "
+        "para verlas, busca `lanmon.self_generated : true` en Discover.\n\n"
         "[Ver diagnóstico](/app/dashboards#/view/lanmon-diagnostico) · "
         "[Ver dispositivos y tráfico](/app/dashboards#/view/lanmon-overview)"), 0, 0, 48, 5),
 

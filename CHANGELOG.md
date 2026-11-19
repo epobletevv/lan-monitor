@@ -10,6 +10,7 @@
 
 ### Mejoras
 
+- **Sin el tráfico de los propios escáneres en los gráficos.** Las alertas de Suricata que provocan los escaneos del equipo indicado en `LAN_SELF_IPS` (consultas a ip-api.com, nmap hacia la LAN) se marcan con `lanmon.self_generated` y el dashboard del IDS no las muestra. La tabla de dominios excluye las consultas inversas `*.arpa` del sniffer (eran ~40% de los registros DNS).
 - **Filebeat arranca rápido.** Ignora y olvida los JSON que no cambiaron en 6 horas (`LAN_FILEBEAT_IGNORE_OLDER`, `LAN_FILEBEAT_CLEAN_INACTIVE`). Antes, cada reinicio volvía a abrir los miles de archivos acumulados y tardaba ~20 minutos en llegar a los nuevos.
 
 ### Actualizar

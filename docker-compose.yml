@@ -124,6 +124,8 @@ services:
       # GeoIP con la base incluida en la imagen, sin descargas.
       - XPACK_GEOIP_DOWNLOADER_ENABLED=false
       - LAN_TZ=${LAN_TZ:-America/Santiago}
+      # IP del equipo que escanea: sus alertas de Suricata por escaneos se marcan y no se grafican.
+      - LAN_SELF_IPS
     volumes:
       - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
     depends_on:

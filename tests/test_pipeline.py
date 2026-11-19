@@ -57,6 +57,8 @@ def run_logstash(work: Path, events: list[dict]) -> list[dict]:
         ["docker", "run", "--rm", "-i", "--network", "none",
          "-e", "XPACK_MONITORING_ENABLED=false", "-e", "PIPELINE_WORKERS=1",
          "-e", "XPACK_GEOIP_DOWNLOADER_ENABLED=false",
+         # IP "propia" de la muestra de Suricata: sus escaneos se marcan como autogenerados.
+         "-e", "LAN_SELF_IPS=192.168.1.50",
          "-e", "LS_JAVA_OPTS=-Xms256m -Xmx256m",
          "-v", f"{pipe}:/usr/share/logstash/pipeline:ro", "-v", f"{out}:/out",
          f"docker.elastic.co/logstash/logstash:{VERSION}"],
@@ -137,8 +139,11 @@ def main() -> int:
     check("alerta con organización del destino", all("as" in a["destination"] for a in alerts), True)
 
     ids = [r for r in rows if r["event"]["dataset"] == "ids.alert"]
-    check("Suricata: alertas (dos distintas, una repetida)", len(ids), 3)
-    check("Suricata: la repetida tiene el mismo _id", len({r["doc_id"] for r in ids}), 2)
+    check("Suricata: alertas (cinco distintas, una repetida)", len(ids), 6)
+    check("Suricata: la repetida tiene el mismo _id", len({r["doc_id"] for r in ids}), 5)
+    own = {r["rule"]["id"]: r.get("lanmon", {}).get("self_reason") for r in ids}
+    check("Suricata: autogeneradas (nmap a la LAN, ip-api) y no las demás", own,
+          {"9000001": None, "2100498": None, "2024364": "escaneo-lan", "2054141": "consulta-ip-api", "2010935": None})
     test = next(r for r in ids if r["rule"]["id"] == "9000001")
     root = next(r for r in ids if r["rule"]["id"] == "2100498")
     check("Suricata: hora con zona → UTC", test["@timestamp"][:19], "2026-10-01T14:40:00")
