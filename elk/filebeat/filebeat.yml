@@ -8,6 +8,9 @@ filebeat.inputs:
     # Cada archivo se abre una sola vez; se limita cuántos a la vez para no saturar Logstash.
     harvester_limit: 100
     close.on_state_change.inactive: 30s
+    # Al reiniciar no revisa los archivos viejos (se cargaron hace rato) y los saca del registro.
+    ignore_older: ${LAN_FILEBEAT_IGNORE_OLDER:6h}
+    clean_inactive: ${LAN_FILEBEAT_CLEAN_INACTIVE:7h}
     paths:
       - /var/log/lan-monitor/lan_scan_*.json
     parsers:
@@ -28,6 +31,9 @@ filebeat.inputs:
     # Cada archivo se abre una sola vez; se limita cuántos a la vez para no saturar Logstash.
     harvester_limit: 100
     close.on_state_change.inactive: 30s
+    # Al reiniciar no revisa los archivos viejos (se cargaron hace rato) y los saca del registro.
+    ignore_older: ${LAN_FILEBEAT_IGNORE_OLDER:6h}
+    clean_inactive: ${LAN_FILEBEAT_CLEAN_INACTIVE:7h}
     paths:
       - /var/log/lan-monitor/lan_traffic_*.json
     parsers:
@@ -48,6 +54,9 @@ filebeat.inputs:
     # Cada archivo se abre una sola vez; se limita cuántos a la vez para no saturar Logstash.
     harvester_limit: 100
     close.on_state_change.inactive: 30s
+    # Al reiniciar no revisa los archivos viejos (se cargaron hace rato) y los saca del registro.
+    ignore_older: ${LAN_FILEBEAT_IGNORE_OLDER:6h}
+    clean_inactive: ${LAN_FILEBEAT_CLEAN_INACTIVE:7h}
     paths:
       - /var/log/lan-monitor/lan_ports_*.json
     parsers:

@@ -8,6 +8,10 @@
 - **Dashboard "LAN Monitor — IDS (Suricata)"**, y la tabla de alertas del IDS al final del de Diagnóstico.
 - `LAN_SURICATA_LOG_DIR` para indicar dónde está `eve.json` (por defecto `/var/log/suricata`).
 
+### Mejoras
+
+- **Filebeat arranca rápido.** Ignora y olvida los JSON que no cambiaron en 6 horas (`LAN_FILEBEAT_IGNORE_OLDER`, `LAN_FILEBEAT_CLEAN_INACTIVE`). Antes, cada reinicio volvía a abrir los miles de archivos acumulados y tardaba ~20 minutos en llegar a los nuevos.
+
 ### Actualizar
 
 ```bash

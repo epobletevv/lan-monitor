@@ -139,6 +139,9 @@ services:
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION:-8.13.0}
     user: root
     command: ["filebeat", "-e", "--strict.perms=false"]
+    environment:
+      - LAN_FILEBEAT_IGNORE_OLDER
+      - LAN_FILEBEAT_CLEAN_INACTIVE
     volumes:
       - ./elk/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - lan_logs:/var/log/lan-monitor:ro

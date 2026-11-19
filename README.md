@@ -142,6 +142,7 @@ Nada está fijo en el código: los escáneres leen todo de variables de entorno 
 | `LAN_EXTERNAL_LOOKUPS` | `false` | Consultar `api.macvendors.com` e `ip-api.com` |
 | `LAN_RETENTION_MIN` | `720` | Minutos que se conservan los JSON crudos |
 | `LAN_SURICATA_LOG_DIR` | `/var/log/suricata` | Carpeta del `eve.json` de Suricata que lee Filebeat |
+| `LAN_FILEBEAT_IGNORE_OLDER`, `LAN_FILEBEAT_CLEAN_INACTIVE` | `6h`, `7h` | Filebeat no revisa los JSON más viejos que eso al reiniciar y los olvida. Si queda caído más tiempo, lo anterior no se carga |
 | `ELK_VERSION`, `ES_HEAP` | `8.13.0`, `1g` | Versión de Elastic y memoria de Elasticsearch |
 | `BIND_ADDR`, `ES_PORT`, `KIBANA_PORT` | `127.0.0.1`, `9200`, `5601` | Dónde se publican Elasticsearch y Kibana |
 | `LOG_MAX_SIZE`, `LOG_MAX_FILE` | `50m`, `3` | Tamaño y cantidad de archivos del log de cada contenedor |

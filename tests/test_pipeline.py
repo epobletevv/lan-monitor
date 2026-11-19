@@ -26,7 +26,9 @@ def run_filebeat(work: Path) -> list[dict]:
     cfg = (ROOT / "elk/filebeat/filebeat.yml").read_text()
     cfg = cfg.split("output.logstash:")[0] + "output.console:\n  codec.json: {pretty: false}\nlogging.level: error\n"
     (work / "filebeat.yml").write_text(cfg)
+    # Las muestras son archivos viejos: sin esto ignore_older las saltaría.
     cmd = ["docker", "run", "--rm", "--name", "lanmon-test-fb", "--network", "none",
+           "-e", "LAN_FILEBEAT_IGNORE_OLDER=0", "-e", "LAN_FILEBEAT_CLEAN_INACTIVE=0",
            "-v", f"{SAMPLES}:/var/log/lan-monitor:ro",
            "-v", f"{SAMPLES}/suricata:/var/log/suricata:ro",
            "-v", f"{work}/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro",
